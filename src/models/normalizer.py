@@ -1,5 +1,9 @@
 # src/models/normalizer.py
 
+"""
+Normalize drug names and assign different scores. Currently testing out various scoring methods!
+"""
+
 import numpy as np
 import Levenshtein
 import difflib
@@ -11,15 +15,9 @@ class DrugNameNormalizer:
     def __init__(self):
         """Initialize the normalizer, which loads ChEMBL data and the retriever."""
         self.retriever = Retriever()
-        # Get the ChEMBL data from the retriever to ensure consistent data reference
-        self.chembl_data = self.retriever.chembl_data
-        
-        # Create a list of all normalized drug names for string matching
-        self.all_drug_names = [normalize_text(name) for name in self.chembl_data['name_variant'].tolist()]
-        
-        # For quick lookup of exact matches
+        self.chembl_data = self.retriever.chembl_data        
+        self.all_drug_names = [normalize_text(name) for name in self.chembl_data['name_variant'].tolist()]        
         self.name_to_idx = {name: idx for idx, name in enumerate(self.all_drug_names)}
-        
         print(f"Initialized normalizer with {len(self.all_drug_names)} drug name variants")
 
     def normalize(self, input_data, similarity_threshold=0.85, use_hybrid=True):
@@ -55,7 +53,7 @@ class DrugNameNormalizer:
         """
         normalized_input = normalize_text(drug_name)
         
-        # Step 1: Try exact match first (fastest)
+        # Exact match - if the drug name is present in the ChEMBL database
         if normalized_input in self.name_to_idx:
             idx = self.name_to_idx[normalized_input]
             return {
@@ -66,28 +64,27 @@ class DrugNameNormalizer:
                 'method': 'exact_match'
             }
         
-        # Step 2: If no exact match, try close string matches
+        # String matches
         close_matches = self._find_close_string_matches(normalized_input)
         
-        # Step 3: Use semantic search with FAISS/SapBERT
+        # Semantic search
         indices, distances = self.retriever.retrieve(drug_name, k=5)
         semantic_matches = []
         
         for i, idx in enumerate(indices[0]):
-            similarity = 1.0 - float(distances[0][i])  # Convert distance to similarity
+            similarity = 1.0 - float(distances[0][i])  # Convert distance to similarity score
             semantic_matches.append({
                 'idx': int(idx),
                 'similarity': similarity
             })
         
+        # Hybrid amethod that combines string + semantic
         if use_hybrid:
-            # Step 4: Combine string and semantic matches for hybrid approach
             best_match = self._get_best_hybrid_match(close_matches, semantic_matches)
         else:
-            # Use only semantic matches
             best_match = semantic_matches[0] if semantic_matches else None
         
-        # If we have a match above the threshold
+        # If the score is above the threshold, return the best match
         if best_match and best_match['similarity'] >= similarity_threshold:
             idx = best_match['idx']
             return {
@@ -98,7 +95,7 @@ class DrugNameNormalizer:
                 'method': best_match['method'] if 'method' in best_match else 'semantic'
             }
         else:
-            # No good match found, return the best we have but mark low confidence
+            # If the score is below the threshold, return with low confidence
             if semantic_matches:
                 idx = semantic_matches[0]['idx']
                 return {
@@ -120,18 +117,16 @@ class DrugNameNormalizer:
                 }
 
     def _find_close_string_matches(self, normalized_input, max_matches=5):
-        """Find close string matches using Levenshtein distance."""
+        """Find close string matches using Levenshtein distance. Need to read more about this to see if this is the best scoring method."""
         # For very short drug names, use a smaller threshold
-        threshold = 2 if len(normalized_input) <= 5 else 3
-        
-        # Try to find matches with small edit distance first (faster for typical typos)
+        threshold = 2 if len(normalized_input) <= 5 else 3        
         close_matches = []
         
-        # First check against 100 most similar drug names (using difflib for initial filtering)
+        # First check against 100 most similar drug names.
         potential_matches = difflib.get_close_matches(normalized_input, self.all_drug_names, n=100, cutoff=0.7)
         
+        # Calculate edit distance and normalized similarity
         for name in potential_matches:
-            # Calculate edit distance and normalized similarity
             distance = Levenshtein.distance(normalized_input, name)
             max_len = max(len(normalized_input), len(name))
             similarity = 1.0 - (distance / max_len)  # Normalize to 0-1 range
@@ -144,17 +139,12 @@ class DrugNameNormalizer:
                     'method': 'string'
                 })
                 
-        # Sort by similarity (highest first)
+        # Sort by similarity (highest to lowest)
         close_matches.sort(key=lambda x: x['similarity'], reverse=True)
         return close_matches[:max_matches]
 
     def _get_best_hybrid_match(self, string_matches, semantic_matches):
-        """
-        Combine string and semantic matching approaches for better results.
-        
-        This weighs string matching more heavily for short drug names where
-        typos are more impactful, and semantic matching more for longer names.
-        """
+        """String + semantic matching."""
         if not string_matches and not semantic_matches:
             return None
             
@@ -176,8 +166,7 @@ class DrugNameNormalizer:
             combined['method'] = 'hybrid_agreement'
             return combined
         
-        # For strings up to 8 characters, favor string matching more
-        # For longer strings, favor semantic matching more
+        # For strings up to 8 characters, favor string matching more. For longer strings, favor semantic matching more.
         string_weight = 0.7 if len(self.all_drug_names[best_string['idx']]) <= 8 else 0.3
         semantic_weight = 1.0 - string_weight
             
@@ -202,10 +191,9 @@ class DrugNameNormalizer:
             
         # Process semantic matches
         for match in semantic_matches[:3]:  # Consider top 3 semantic matches
-            # Skip if already processed in string matches
             if any(c['idx'] == match['idx'] for c in hybrid_candidates):
                 continue
-                
+
             hybrid_score = match['similarity'] * semantic_weight
             
             # Look for the same index in string matches to boost score

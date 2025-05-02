@@ -1,3 +1,9 @@
+# src/config/config.py
+
+"""
+Configuration file to store directory and file paths
+"""
+
 from pathlib import Path
 
 class Config:

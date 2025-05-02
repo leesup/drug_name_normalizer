@@ -6,6 +6,12 @@
 
 Normalize drug names to ChEMBL IDs and preferred names. The transformer model SapBERT (https://huggingface.co/cambridgeltl/SapBERT-from-PubMedBERT-fulltext) and the ChEMBL database version chembl_35.sqlite.tar.gz (https://ftp.ebi.ac.uk/pub/databases/chembl/ChEMBLdb/latest/) are used for retrieval-augmented generation (RAG).
 
+Requires chembl_35.db (unzipped from chembl_35.sqlite.tar.gz) in /data/raw.
+
+To do...
+- Find a way to integrate chembl_data.parquet and faiss_index to the github repo
+- Fix the scoring metric or using a different one
+
 ## Project Organization
 
 ```
@@ -36,11 +42,11 @@ Normalize drug names to ChEMBL IDs and preferred names. The transformer model Sa
 │
 └── src   <- Source code for use in this project.
     │
-    ├── __init__.py           
+    ├── __init__.py
     │
     ├── config
-    │   ├── __init__.py         
-    │   └── config.py           
+    │   ├── __init__.py
+    │   └── config.py    
     │
     ├── core
     │   ├── __init__.py         
@@ -48,7 +54,7 @@ Normalize drug names to ChEMBL IDs and preferred names. The transformer model Sa
     │
     ├── data
     │   ├── __init__.py         
-    │   └── data_loader.p
+    │   └── data_loader.py
     │
     ├── models
     │   ├── __init__.py         
@@ -60,5 +66,3 @@ Normalize drug names to ChEMBL IDs and preferred names. The transformer model Sa
     └── utils
         ├── __init__.py
         └── text_utils.py
-             
-

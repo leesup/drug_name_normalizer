@@ -1,5 +1,9 @@
 # src/data/data_loader.py
 
+"""
+Load and process a ChEMBL database
+"""
+
 import sqlite3
 import pandas as pd
 from src.config.config import Config

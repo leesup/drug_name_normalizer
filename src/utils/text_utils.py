@@ -1,7 +1,7 @@
 # src/utils/text_utils.py
 
 """
-Text utility functions for drug name normalization
+Utility functions for processing text
 """
 
 import re

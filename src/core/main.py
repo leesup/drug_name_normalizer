@@ -1,5 +1,9 @@
 # src/core/main.py
 
+"""
+Main wrapper file to run drug_name_normalizer
+"""
+
 import argparse
 import pandas as pd
 from pathlib import Path
@@ -14,23 +18,23 @@ def main():
     parser.add_argument('-t', '--threshold', type=float, default=0.85,
                         help="Similarity threshold for matching (0.0-1.0)")
     parser.add_argument('--string-only', action='store_true',
-                        help="Use only string matching (faster but less accurate)")
+                        help="Use string matching only")
     parser.add_argument('--semantic-only', action='store_true',
-                        help="Use only semantic matching (better for complex names)")
+                        help="Use semantic matching only")
     args = parser.parse_args()
 
     drug_inputs = args.drug
     output_path = args.output
     threshold = args.threshold
     
-    # Determine matching method based on flags
+    # Matching methods
     use_hybrid = not (args.string_only or args.semantic_only)
 
-    # Initialize the normalizer
+    # Initialize the DrugNameNormalizer
     print("Initializing DrugNameNormalizer...")
     normalizer = DrugNameNormalizer()
 
-    # Case 1: if input is a path to a CSV file
+    # Read the input CSV file - CSV file must include a column named "drug_name" and must be one CSV file only
     if len(drug_inputs) == 1 and drug_inputs[0].endswith(".csv"):
         csv_path = Path(drug_inputs[0])
         if not csv_path.exists():
@@ -42,7 +46,7 @@ def main():
         if "drug_name" not in input_df.columns:
             raise ValueError("CSV must contain a 'drug_name' column.")
 
-        # Apply normalization to each drug name
+        # Apply normalization to each drug name - find a way to do this in batches if possible
         results = []
         for drug in input_df["drug_name"]:
             result = normalizer.normalize(drug, threshold, use_hybrid)
@@ -56,7 +60,7 @@ def main():
                              results_df.drop("drug_name", axis=1).reset_index(drop=True)], 
                              axis=1)
 
-    # Case 2: input is one or more drug names
+    # If individual drug name(s) are given instead of CSV
     else:
         print("Normalizing provided drug name(s)...")
         results_list = []
@@ -71,7 +75,7 @@ def main():
         final_df.to_csv(output_path, index=False)
         print(f"Results saved to {output_path}!")
     else:
-        # Print results to console
+        # Print results to terminal
         print("\nNormalization Results:")
         print(final_df.to_string(index=False))
 

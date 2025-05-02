@@ -1,5 +1,11 @@
 # src/models/transformer_models.py
 
+"""
+Select a transformer model used for the baseline ML model.
+
+I only tested out SapBERT for now - may need to test out other transformers.
+"""
+
 import numpy as np
 import torch
 from transformers import AutoTokenizer, AutoModel
@@ -16,7 +22,6 @@ class SapBERT:
 
     def encode(self, texts):
         """Encode a list of texts into embeddings."""
-        # Handle empty list case
         if not texts:
             return np.array([])
         
@@ -26,8 +31,6 @@ class SapBERT:
         # Generate embeddings
         with torch.no_grad():
             outputs = self.model(**inputs)
-            # Use CLS token embedding or mean of last hidden state
             embeddings = outputs.last_hidden_state[:, 0, :].cpu().numpy()
             
         return embeddings
-    
