@@ -1,36 +1,37 @@
 # src/models/retriever.py
 
-from src.models.faiss_indexer import FaissIndexManager
-from src.models.transformer_models import SapBERT
-from src.data.data_loader import DataLoader
 import numpy as np
 import pandas as pd
 import time
+
+from src.models.faiss_indexer import FaissIndexManager
+from src.models.transformer_models import SapBERT
+from src.data.data_loader import DataLoader
 
 class Retriever:
     def __init__(self):
         start_time = time.time()
         print("Initializing Retriever...")
         
-        # Step 1: Check if FAISS index already exists before loading anything else
+        # Check if FAISS index already exists before loading anything else
         self.faiss_manager = FaissIndexManager()
         index_exists = self.faiss_manager.faiss_index_path.exists()
         
-        # Step 2: Load transformer model only if we need to generate embeddings
+        # Load transformer model only if we need to generate embeddings
         # or process queries (always needed)
         self.transformer = SapBERT()
         
-        # Step 3: Load ChEMBL data
+        # Load ChEMBL data
         self.data_loader = DataLoader()
         self.chembl_data = self.data_loader.load_chembl_db()
         
-        # Step 4: Handle embeddings and FAISS index
+        # Handle embeddings and FAISS index
         if index_exists:
             # If index exists, just load it - no need to process embeddings
             print(f"Loading existing FAISS index from {self.faiss_manager.faiss_index_path}")
             self.index = self.faiss_manager.load_faiss_index()
         else:
-            # We need to generate embeddings and build the index
+            # Generate embeddings and build the index
             if 'embeddings' not in self.chembl_data.columns:
                 print("Generating embeddings for drug names...")
                 embeddings = self._generate_embeddings(self.chembl_data['name_variant'].tolist())

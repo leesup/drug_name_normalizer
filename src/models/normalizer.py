@@ -1,10 +1,11 @@
 # src/models/normalizer.py
 
-from src.models.retriever import Retriever
+import numpy as np
 import Levenshtein
 import difflib
+
+from src.models.retriever import Retriever
 from src.utils.text_utils import normalize_text
-import numpy as np
 
 class DrugNameNormalizer:
     def __init__(self):

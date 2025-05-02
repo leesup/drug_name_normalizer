@@ -1,7 +1,8 @@
 # src/models/faiss_indexer.py
 
-import faiss
 import numpy as np
+import faiss
+
 from src.config.config import Config
 
 class FaissIndexManager:

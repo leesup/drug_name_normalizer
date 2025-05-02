@@ -1,8 +1,9 @@
 # src/models/transformer_models.py
 
-from transformers import AutoTokenizer, AutoModel
-import torch
 import numpy as np
+import torch
+from transformers import AutoTokenizer, AutoModel
+
 from src.config.config import Config
 
 class SapBERT:
