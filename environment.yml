@@ -1,0 +1,27 @@
+name: drug_name_normalizer
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pip
+  - isort
+  - ruff
+  - loguru
+  - tqdm
+  - ipython
+  - jupyterlab
+  - matplotlib
+  - notebook
+  - numpy
+  - pandas
+  - scikit-learn
+  - faiss-gpu
+  - pyarrow
+  - pip:
+    - python-dotenv
+    - mkdocs
+    - transformers
+    - torch
+    - Levenshtein
+    - -e .
+

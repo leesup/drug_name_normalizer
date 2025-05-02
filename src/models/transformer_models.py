@@ -1,0 +1,32 @@
+# src/models/transformer_models.py
+
+from transformers import AutoTokenizer, AutoModel
+import torch
+import numpy as np
+from src.config.config import Config
+
+class SapBERT:
+    def __init__(self):
+        self.tokenizer = AutoTokenizer.from_pretrained(Config.SAPBERT_MODEL_NAME)
+        self.model = AutoModel.from_pretrained(Config.SAPBERT_MODEL_NAME)
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.model.to(self.device)  # Move model to GPU if available
+        print(f"SapBERT model loaded on {self.device}")
+
+    def encode(self, texts):
+        """Encode a list of texts into embeddings."""
+        # Handle empty list case
+        if not texts:
+            return np.array([])
+        
+        # Tokenize inputs
+        inputs = self.tokenizer(texts, padding=True, truncation=True, max_length=128, return_tensors='pt').to(self.device)
+        
+        # Generate embeddings
+        with torch.no_grad():
+            outputs = self.model(**inputs)
+            # Use CLS token embedding or mean of last hidden state
+            embeddings = outputs.last_hidden_state[:, 0, :].cpu().numpy()
+            
+        return embeddings
+    
