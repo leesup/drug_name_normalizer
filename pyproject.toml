@@ -5,7 +5,7 @@ build-backend = "flit_core.buildapi"
 [project]
 name = "src"
 version = "0.0.1"
-description = "Normalize drug names to ChEMBL IDs and preferred names. The transformer model SapBERT (https://huggingface.co/cambridgeltl/SapBERT-from-PubMedBERT-fulltext) and the ChEMBL database version chembl_35.sqlite.tar.gz (https://ftp.ebi.ac.uk/pub/databases/chembl/ChEMBLdb/latest/) is used for retrieval-augmented generation (RAG)."
+description = "Normalize drug names to ChEMBL IDs and preferred names. The transformer model SapBERT (https://huggingface.co/cambridgeltl/SapBERT-from-PubMedBERT-fulltext) and the ChEMBL database version chembl_35.sqlite.tar.gz (https://ftp.ebi.ac.uk/pub/databases/chembl/ChEMBLdb/latest/) are used for retrieval-augmented generation (RAG)."
 authors = [
   { name = "Paul Suhwan Lee" },
 ]

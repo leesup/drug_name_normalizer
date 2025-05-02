@@ -4,7 +4,7 @@
     <img src="https://img.shields.io/badge/CCDS-Project%20template-328F97?logo=cookiecutter" />
 </a>
 
-Normalize drug names to ChEMBL IDs and preferred names. The transformer model SapBERT (https://huggingface.co/cambridgeltl/SapBERT-from-PubMedBERT-fulltext) and the ChEMBL database version chembl_35.sqlite.tar.gz (https://ftp.ebi.ac.uk/pub/databases/chembl/ChEMBLdb/latest/) is used for retrieval-augmented generation (RAG).
+Normalize drug names to ChEMBL IDs and preferred names. The transformer model SapBERT (https://huggingface.co/cambridgeltl/SapBERT-from-PubMedBERT-fulltext) and the ChEMBL database version chembl_35.sqlite.tar.gz (https://ftp.ebi.ac.uk/pub/databases/chembl/ChEMBLdb/latest/) are used for retrieval-augmented generation (RAG).
 
 ## Project Organization
 
@@ -23,7 +23,7 @@ Normalize drug names to ChEMBL IDs and preferred names. The transformer model Sa
 ├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering)
 │
 ├── pyproject.toml     <- Project configuration file with package metadata for 
-│                         src and configuration for tools like black
+│                         src and configuration for tools
 │
 ├── references         <- Data dictionaries, manuals, and all other explanatory materials.
 │
@@ -32,25 +32,34 @@ Normalize drug names to ChEMBL IDs and preferred names. The transformer model Sa
 │
 ├── environment.yml    <- The environment file for reproducing the analysis environment
 │
-├── setup.cfg          <- Configuration file for flake8
+├── __main__.py
 │
 └── src   <- Source code for use in this project.
     │
-    ├── __init__.py             <- Makes src a Python module
+    ├── __init__.py           
     │
-    ├── config.py               <- Store useful variables and configuration
+    ├── config
+    │   ├── __init__.py         
+    │   └── config.py           
     │
-    ├── dataset.py              <- Scripts to download or generate data
+    ├── core
+    │   ├── __init__.py         
+    │   └── main.py
     │
-    ├── features.py             <- Code to create features for modeling
+    ├── data
+    │   ├── __init__.py         
+    │   └── data_loader.p
     │
-    ├── modeling                
-    │   ├── __init__.py 
-    │   ├── predict.py          <- Code to run model inference with trained models          
-    │   └── train.py            <- Code to train models
+    ├── models
+    │   ├── __init__.py         
+    │   ├── faiss_indexer.py
+    │   ├── normalizer.py
+    │   ├── retriever.py
+    │   └── transformer_models.py
     │
-    └── plots.py                <- Code to create visualizations
-```
-
+    └── utils
+        ├── __init__.py
+        └── text_utils.py
+             
 --------
 
